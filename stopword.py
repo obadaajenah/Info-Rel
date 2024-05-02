@@ -18,4 +18,4 @@ for word in tokenize_words:
 print(set(tokenize_words)-set(tokenize_words_without_stop_words))
 print(tokenize_words_without_stop_words)
 
-
+###########ola and bayan ###########
