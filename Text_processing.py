@@ -15,7 +15,7 @@ class TextProcessor:
         words = sentence.split()
         converted_sentence = []
         for word in words:
-            if word.isdigit():
+            if word.isdigit():  
                 converted_word = num2words(int(word), lang='en')
                 converted_sentence.append(converted_word)
             else:
@@ -57,3 +57,4 @@ print("text befor processing:",text)
 print("the processed nubmer is:",processed_number)
 print("the processed text :",processed_text)
 
+#gggggggggggggg#
