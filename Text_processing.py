@@ -1,4 +1,3 @@
-
 import re
 import csv
 import enchant
@@ -11,10 +10,11 @@ from collections import Counter
 from textblob import TextBlob
 import string
 
+from spellchecker import SpellChecker  # Import spell checker
 
 class TextProcessor:
     def __init__(self):
-        pass
+        self.spell_checker = SpellChecker()
 
     @staticmethod
     def convert_numbers_to_words(sentence):
@@ -50,13 +50,18 @@ class TextProcessor:
         stop_words = set(stopwords.words('english'))
         filtered_words = [word for word in words if word.lower() not in stop_words]  # Remove stopwords
         
-        # Lemmatization
+        # Lemmatization and Spell Checking
         lemmatizer = WordNetLemmatizer()
-        lemmatized_words = [lemmatizer.lemmatize(word) for word in filtered_words]  # Lemmatize words
+        spell_checked_words = []
+        for word in filtered_words:
+            lemmatized_word = lemmatizer.lemmatize(word)
+            corrected_word = self.spell_check_word(lemmatized_word)  # Use self.spell_checker
+            if corrected_word:
+                spell_checked_words.append(corrected_word)
         
         # Stemming
         stemmer = PorterStemmer()
-        stemmed_words = [stemmer.stem(word) for word in lemmatized_words]  # Stem words
+        stemmed_words = [stemmer.stem(word) for word in spell_checked_words]  # Stem words
         
         return stemmed_words
     @staticmethod
