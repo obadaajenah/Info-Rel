@@ -9,7 +9,8 @@ from num2words import num2words
 from collections import Counter
 from textblob import TextBlob
 import string
-
+from nltk import pos_tag
+from nltk.corpus import wordnet
 from spellchecker import SpellChecker  # Import spell checker
 
 class TextProcessor:
@@ -33,62 +34,58 @@ class TextProcessor:
         return " ".join(converted_sentence)
 
     @staticmethod
-    def preprocess_text(text):
-        # Convert numbers to words
-        text = TextProcessor.convert_numbers_to_words(text)
-        
-        # Cleaning
-        cleaned_text = re.sub(r'\W', ' ', text)  # Remove unwanted characters
-        
-        # Tokenization
-        sentences = sent_tokenize(cleaned_text)  # Tokenize into sentences
+    def get_wordnet_pos(tag):
+
+        if tag.startswith('J'):
+            return wordnet.ADJ
+        elif tag.startswith('V'):
+            return wordnet.VERB
+        elif tag.startswith('N'):
+            return wordnet.NOUN
+        elif tag.startswith('R'):
+            return wordnet.ADV
+        else:
+            return wordnet.NOUN
+    
+    @staticmethod
+    def cleaning_text(text):
+        cleaned_text = re.sub(r'\W', ' ', text) 
+        return cleaned_text
+    
+    @staticmethod
+    def Tokenization(text):
+        senteances = sent_tokenize(text)  # Tokenize into sentences
         words = []
-        for sentence in sentences:
-            words.extend(word_tokenize(sentence))  # Tokenize into words
-        
-        # Stopword removal
+        for sentence in senteances:
+            words.extend(word_tokenize(sentence))
+        return words
+
+    @staticmethod
+    def Stopword_removal(text):
         stop_words = set(stopwords.words('english'))
-        filtered_words = [word for word in words if word.lower() not in stop_words]  # Remove stopwords
-        
-        # Lemmatization and Spell Checking
+        filtered_words = [word for word in text if word.lower() not in stop_words]
+        return filtered_words
+    
+    @staticmethod
+    def Lemmatization(text):
+        pos_tags = pos_tag(text)
+        # pos_tags = pos_tag(filtered_words)
         lemmatizer = WordNetLemmatizer()
-        spell_checked_words = []
-        for word in filtered_words:
-            lemmatized_word = lemmatizer.lemmatize(word)
-            corrected_word = self.spell_check_word(lemmatized_word)  # Use self.spell_checker
-            if corrected_word:
-                spell_checked_words.append(corrected_word)
-        
-        # Stemming
+        lemmatized_words = [lemmatizer.lemmatize(word, pos=TextProcessor.get_wordnet_pos(tag)) for word, tag in pos_tags]
+        return lemmatized_words
+
+    @staticmethod
+    def Stemming(text):
         stemmer = PorterStemmer()
-        stemmed_words = [stemmer.stem(word) for word in spell_checked_words]  # Stem words
+        stemmed_words = [stemmer.stem(word) for word in text]  # Stem words
         
         return stemmed_words
-    @staticmethod
-    def spell_check(words):
-        # Load custom dictionary
-        with open("custom_dictionary.txt", "r") as f:
-            custom_dictionary = set(word.strip() for word in f.readlines())
-        
-        # Punctuation removal
-        words = [word.translate(str.maketrans('', '', string.punctuation)) for word in words]
 
-        # Count occurrences of each word
-        word_counts = Counter(words)
 
-        # Initialize error dictionary
-        error_dict = {}
 
-        # Iterate through words
-        for word, count in word_counts.items():
-            # Check if word is in custom dictionary or is a number
-            if word not in custom_dictionary and not word.isdigit():
-                # For simplicity, let's just include the word itself as the correction
-                # You can replace this with more sophisticated correction algorithms
-                # such as Levenshtein distance or edit distance
-                error_dict[word] = [word]
 
-        return error_dict
+
+
 
     @staticmethod
     def correct(text: str | list[str]) -> str | None:
@@ -104,6 +101,10 @@ class TextProcessor:
         corrected_text = str(TextBlob(text).correct())
         return corrected_text
 
+
+
+
+
 # Open the TSV file for reading and the output file for writing
 with open('D:/Info-Rel/File/collection.tsv', 'r', encoding='utf-8') as input_file, open('preprocessed_collection.tsv', 'w', encoding='utf-8') as output_file:
     # Create a CSV reader for the input file
@@ -118,10 +119,18 @@ with open('D:/Info-Rel/File/collection.tsv', 'r', encoding='utf-8') as input_fil
     # Process each row in the TSV file
     for row in reader:
         text = row[1]  # Assuming the text is in the second column (index 1)
-        preprocessed_text = text_processor.preprocess_text(text)
+        # preprocessed_text = text_processor.preprocess_text(text)
+        clean= text_processor.cleaning_text(text)
+        tokenize=text_processor.Tokenization(clean)
+        Stopword_removal=text_processor.Stopword_removal(tokenize)
+        Lemmatizer=text_processor.Lemmatization(Stopword_removal)
+        Stemming=text_processor.Stemming(Lemmatizer)
+
+
+
         
         # Convert preprocessed text to a string
-        preprocessed_text_str = ' '.join(preprocessed_text)
+        preprocessed_text_str = ' '.join( Stemming)
         
         # Convert numbers to words
         #converted_text = text_processor.convert_numbers_to_words(preprocessed_text_str)
@@ -130,7 +139,7 @@ with open('D:/Info-Rel/File/collection.tsv', 'r', encoding='utf-8') as input_fil
         #corrected_text = text_processor.correct(converted_text)
         
         # Write the index and corrected text to the output file
-        writer.writerow([row[0], preprocessed_text])
+        writer.writerow([row[0],  Stemming])
 
 
 
@@ -146,4 +155,5 @@ with open('D:/Info-Rel/File/collection.tsv', 'r', encoding='utf-8') as input_fil
 # print("the processed nubmer is:",processed_number)
 # print("the processed text :",processed_text)
 # print("the processed correct :",processed_correct)
+
 #gggggggggggggg#

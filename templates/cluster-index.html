@@ -18,6 +18,14 @@
         <label for="queryInput">Enter your query:</label>
         <input type="text" class="form-control" id="queryInput" name="query">
       </div>
+      <div class="form-group">
+        <label for="datasetSelect">Choose the dataset:</label>
+        <select class="form-control" id="datasetSelect" name="dataset">
+          <option value="dataset1">Dataset 1</option>
+          <option value="dataset2">Dataset 2</option>
+          <!-- Add more options as needed -->
+        </select>
+      </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
@@ -36,6 +44,8 @@
     document.getElementById('queryForm').addEventListener('submit', function(event) {
       event.preventDefault();
       var query = document.getElementById('queryInput').value;
+      
+      var dataset = document.getElementById('datasetSelect').value; // Get the selected dataset
       var request = new XMLHttpRequest();
       request.open('POST', '/cluster-query', true);
       request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
@@ -52,7 +62,8 @@
           });
         }
       };
-      request.send('query=' + encodeURIComponent(query));
+      request.send('query=' + encodeURIComponent(query) + '&dataset=' + encodeURIComponent(dataset));
+      console.log(query); // Include dataset in the request
     });
   </script>
 </body>
