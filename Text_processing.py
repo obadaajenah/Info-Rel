@@ -11,11 +11,11 @@ from textblob import TextBlob
 import string
 from nltk import pos_tag
 from nltk.corpus import wordnet
-from spellchecker import SpellChecker  # Import spell checker
+# from spellchecker import SpellChecker  # Import spell checker
 
 class TextProcessor:
-    def __init__(self):
-        self.spell_checker = SpellChecker()
+    # def __init__(self):
+        # self.spell_checker = SpellChecker()
 
     @staticmethod
     def convert_numbers_to_words(sentence):
@@ -88,18 +88,36 @@ class TextProcessor:
 
 
     @staticmethod
-    def correct(text: str | list[str]) -> str | None:
+    def correct(text: str | list[str]) -> list[str] | None:
         if isinstance(text, list):
-            # Join the list elements into a single string
-            text = ' '.join(text)
+            # Ensure text is not empty
+            if not text:
+                return []
 
-        # Ensure text is a string before passing it to TextBlob
-        if not isinstance(text, str):
+            # Correct each word in the list
+            corrected_words = [str(TextBlob(word).correct()) for word in text]
+            return corrected_words
+        elif isinstance(text, str):
+            # Split the string into words
+            words = text.split()
+            # Correct each word in the list
+            corrected_words = [str(TextBlob(word).correct()) for word in words]
+            return corrected_words
+        else:
+            # If text is neither string nor list, return None
             return None
+    # def correct(text: str | list[str]) -> str | None:
+    #     if isinstance(text, list):
+    #         # Join the list elements into a single string
+    #         text = ' '.join(text)
 
-        # Correct the text
-        corrected_text = str(TextBlob(text).correct())
-        return corrected_text
+    #     # Ensure text is a string before passing it to TextBlob
+    #     if not isinstance(text, str):
+    #         return None
+
+    #     # Correct the text
+    #     corrected_text = str(TextBlob(text).correct())
+    #     return corrected_text
 
 
 
