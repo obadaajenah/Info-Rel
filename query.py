@@ -1,4 +1,4 @@
-
+from sklearn.feature_extraction.text import TfidfVectorizer
 from Text_processing import TextProcessor  
 print("fffffffffffff")
 
@@ -28,3 +28,6 @@ def process_query(file_path):
 # # استدعاء الدالة لقراءة الملف النصي
 file_path = 'ff.txt'
 process_query(file_path)
+q=process_query(file_path)
+# vectorizer = TfidfVectorizer()
+# query_vector = vectorizer.transform(q)
